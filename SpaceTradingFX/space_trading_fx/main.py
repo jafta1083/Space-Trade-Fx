@@ -18,3 +18,4 @@ signals = read_signals()
 
 for signal in signals:
     print(f"{signal['action']} signal for {signal['symbol']} at {signal['price']}")
+    
