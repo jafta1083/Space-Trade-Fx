@@ -1,7 +1,7 @@
 import json
 import sys
-import logger_file
-from SpaceTradingFX.space_trading_fx.utils.logger_file import log
+import logger
+from SpaceTradingFX.space_trading_fx.utils.logger import log
 from utils.status import status_code
 from loguru import logger as loguru_logger
 
@@ -24,7 +24,7 @@ def perfil(api_endpoint, user_id, api_key, retries=3, timeout=10):
 
     for attempt in range(retries):
         try:
-            response = logger_file.get(api_endpoint, headers=headers, params=params, timeout=timeout)
+            response = logger.get(api_endpoint, headers=headers, params=params, timeout=timeout)
 
             if response.status_code == 200:
                 profile_data = response.json()
@@ -34,10 +34,10 @@ def perfil(api_endpoint, user_id, api_key, retries=3, timeout=10):
                 log(f"Failed to retrieve profile for user {user_id}. Status code: {response.status_code}", level="ERROR")
                 return None
 
-        except logger_file.exceptions.Timeout:
+        except logger.exceptions.Timeout:
             log(f"Request timed out for user {user_id}, attempt {attempt + 1}.", level="WARNING")
 
-        except logger_file.exceptions.RequestException as e:
+        except logger.exceptions.RequestException as e:
             log(f"Request failed for user {user_id}: {str(e)}", level="ERROR")
 
     log(f"Max retries reached for user {user_id}, profile retrieval failed.", level="ERROR")
