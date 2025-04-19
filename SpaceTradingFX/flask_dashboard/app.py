@@ -1,10 +1,24 @@
-from flask import Flask, render_template
+from flask import Flask, render_template,request
+import logging
 import os
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
+    
+    # Make sure 'logs' folder exists
+    os.makedirs("logs", exist_ok=True)
+
+    # Configure Werkzeug logger to write to logs/server.log
+    werkzeug_logger = logging.getLogger('werkzeug')
+    werkzeug_logger.setLevel(logging.INFO)
+
+    file_handler = logging.FileHandler('logs/server.log')
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    werkzeug_logger.addHandler(file_handler)
+    
+    
     # Read logs from file (you already have this part)
     log_path = os.path.join(os.path.dirname(__file__), "..","logs","bot.log")
     if os.path.exists(log_path):
