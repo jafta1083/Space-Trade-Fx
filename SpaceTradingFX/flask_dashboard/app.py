@@ -28,10 +28,10 @@ def home():
         logs = ["No logs yet."]
     
     # Mock data for other variables
-    balance = 10000  # Example balance
+    balance = 100000.00  # Example balance
     active_trades = [
         {"currency_pair": "EUR/USD", "type": "Buy", "profit": 150},
-        {"currency_pair": "GBP/USD", "type": "Sell", "profit": -50}
+        {"currency_pair": "GBP/USD", "type": "Sell", "profit": +50}
     ]
     market_trends = [
         {"pair": "EUR/USD", "timeframe": "1H", "payout": "1.5%"},

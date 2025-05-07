@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forex Trading Dashboard</title>
+    <title>SpaceTradigFX</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,16 +55,39 @@
 </head>
 <body>
     <div class="header">
-        <h1>Forex Trading Dashboard</h1>
+        <h1>SpaceTradingFX</h1>
+        <h2>Welcome<h2>
         <p>Manage your trades, view your balance, and monitor real-time performance</p>
     </div>
 
     <div class="container">
         <div class="row">
             <div>
+                <form action= "SpaceTradigFX.php" method="POST">
+
+                    <lable for="Username">Username:</label>
+                    <input type="text" id="Username"placeholder="username13"minlength="6" maxlength="15" required><br>
+                    
+                    <lable for="password">password :</label>
+                    <input type="text" id="password "placeholder="password@13"minlength="6" maxlength="15" required><br>
+
+                    <lable for="email"> email :</label>
+                    <input type="text" id="email "placeholder="Useremail30@gmail.com"><br><minlength="6" maxlength="30"<br>
+
+                    
+                    <lable for="phone"> phone :</label>
+                    <input type="tel" id="phone "placeholder="012-456-7890"pattern="[0-9]{3}-[0-9]{3}[0-9]{4}"><br>    
+
+                    <input type="reset"><br>
+                    <input type="submit">
+
+                </form>    
+
+
                 <h2>Account Balance</h2>
                 <p><strong>Balance: </strong> R{{ balance }}</p>
                 <button class="button" onclick="location.href='/update_balance'">Update Balance</button>
+                
             </div>
             <div>
                 <h2>Active Trades</h2>
