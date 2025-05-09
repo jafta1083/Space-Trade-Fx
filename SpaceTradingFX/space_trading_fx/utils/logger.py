@@ -3,7 +3,7 @@ import logging
 import sys
 from datetime import datetime
 from loguru import logger as loguru_logger
-from utils.status import status_code
+# from utils.status import status_code
 import __init__
 
 class CustomLogger:
@@ -43,10 +43,10 @@ class CustomLogger:
     def send_log_to_site(self, log_data):
         try:
             response = __init__.post(self.endpoint, headers=self.headers, data=json.dumps(log_data))
-            if response.status_code == 200:
+            if response.status_code() == 200:
                 print(f"✅ Log successfully sent to site: {log_data}")
             else:
-                print(f"❌ Failed to send log: {response.status_code}")
+                print(f"❌ Failed to send log: {response.status_code()}")
         except Exception as e:
             print(f"❌ Error sending log: {str(e)}")
 

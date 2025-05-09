@@ -2,7 +2,7 @@ import json
 import sys
 import logger
 from SpaceTradingFX.space_trading_fx.utils.logger import log
-from utils.status import status_code
+from utils.status import *
 from loguru import logger as loguru_logger
 
 # Configure the logger when the module is loaded
@@ -26,12 +26,12 @@ def perfil(api_endpoint, user_id, api_key, retries=3, timeout=10):
         try:
             response = logger.get(api_endpoint, headers=headers, params=params, timeout=timeout)
 
-            if response.status_code == 200:
+            if response.status_code() == 200:
                 profile_data = response.json()
                 log(f"Profile data retrieved for user {user_id}.", level="INFO")
                 return profile_data
             else:
-                log(f"Failed to retrieve profile for user {user_id}. Status code: {response.status_code}", level="ERROR")
+                log(f"Failed to retrieve profile for user {user_id}. Status code: {response.status_code()}", level="ERROR")
                 return None
 
         except logger.exceptions.Timeout:

@@ -22,3 +22,4 @@ def status_code(code):
     }
 
     return status_messages.get(code, f"Unknown Status Code: {code}")
+

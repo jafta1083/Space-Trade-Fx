@@ -56,7 +56,7 @@ class MockBrokerAPI:
         }
 
     def get_digital_payout(self, currency_pairs, timeframe):
-        return 85
+        return 85,currency_pairs,timeframe
 
     def subscribe_strike_list(self, currency_pairs, timeframe):
         return f"Subscribed to {currency_pairs} ({timeframe})"
@@ -147,3 +147,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
