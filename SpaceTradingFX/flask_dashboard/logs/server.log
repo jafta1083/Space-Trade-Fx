@@ -11,3 +11,5 @@
 2025-11-02 13:31:07,386 - INFO - 127.0.0.1 - - [02/Nov/2025 13:31:07] "GET / HTTP/1.1" 200 -
 2025-11-02 13:31:09,101 - INFO - 172.31.67.130 - - [02/Nov/2025 13:31:09] "GET / HTTP/1.1" 200 -
 2025-11-02 13:31:09,101 - INFO - 172.31.67.130 - - [02/Nov/2025 13:31:09] "GET / HTTP/1.1" 200 -
+2025-11-02 13:46:22,666 - INFO -  * Detected change in '/home/runner/workspace/SpaceTradingFX/flask_dashboard/app.py', reloading
+2025-11-02 13:46:22,666 - INFO -  * Detected change in '/home/runner/workspace/SpaceTradingFX/flask_dashboard/app.py', reloading

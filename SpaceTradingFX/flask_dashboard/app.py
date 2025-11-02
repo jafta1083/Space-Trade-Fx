@@ -1,45 +1,34 @@
-from flask import Flask, render_template,request
-import logging
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 import os
+from werkzeug.middleware.proxy_fix import ProxyFix
+import logging
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+
+class Base(DeclarativeBase):
+    pass
+
+# Initialize Flask app
 app = Flask(__name__)
+app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-@app.route('/')
-def home():
-    
-    # Make sure 'logs' folder exists
-    os.makedirs("logs", exist_ok=True)
+# Database configuration
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///trading.db")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    'pool_pre_ping': True,
+    "pool_recycle": 300,
+}
 
-    # Configure Werkzeug logger to write to logs/server.log
-    werkzeug_logger = logging.getLogger('werkzeug')
-    werkzeug_logger.setLevel(logging.INFO)
+# Initialize database
+db = SQLAlchemy(app, model_class=Base)
 
-    file_handler = logging.FileHandler('logs/server.log')
-    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    werkzeug_logger.addHandler(file_handler)
-    
-    
-    # Read logs from file (you already have this part)
-    log_path = os.path.join(os.path.dirname(__file__), "..","logs","bot.log")
-    if os.path.exists(log_path):
-        with open(log_path, 'r') as file:
-            logs = file.readlines()
-    else:
-        logs = ["No logs yet."]
-    
-    # Mock data for other variables
-    balance = 100.00  # Example balance
-    active_trades = [
-        {"currency_pair": "EUR/USD", "type": "Buy", "profit": 150},
-        {"currency_pair": "GBP/USD", "type": "Sell", "profit": +50}
-    ]
-    market_trends = [
-        {"pair": "EUR/USD", "timeframe": "1H", "payout": "1.5%"},
-        {"pair": "GBP/USD", "timeframe": "15M", "payout": "2.3%"}
-    ]
-    
-    # Return the template with variables
-    return render_template('dashboard.html', logs=logs, balance=balance, active_trades=active_trades, market_trends=market_trends)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+# Create tables
+with app.app_context():
+    import models  # noqa: F401
+    db.create_all()
+    logging.info("Database tables created")
