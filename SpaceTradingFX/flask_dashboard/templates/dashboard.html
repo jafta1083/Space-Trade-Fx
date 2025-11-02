@@ -1,114 +1,190 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpaceTradigFX</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7f3;
-            margin: 0;
-            padding: 0;
-        }
-        .header {
-            background-color: #333;
-            color: red;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: SlateBlue;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .row div {
-            width: 48%;
-            padding: 15px;
-            background-color: #f8f8f8;
-            border-radius: 8px;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            margin-top: 0;
-        }
-        .button {
-            padding: 10px 20px;
-            background-color: #5cb85c;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #4cae4c;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>SpaceTradingFX</h1>
-        <h2>Welcome<h2>
-        <p>Manage your trades, view your balance, and monitor real-time performance</p>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Welcome, {{ user.email }}!</h2>
+    
+    {% if not has_license %}
+    <div class="alert alert-warning">
+        <strong>⚠️ No Active License</strong><br>
+        You need a valid license key to access trading features. 
+        <a href="{{ url_for('buy_license') }}" style="color: #92400e; text-decoration: underline;">Get your license here</a>
     </div>
-
-    <div class="container">
-        <div class="row">
-            <div>
-                <form action= "SpaceTradigFX.php" method="POST">
-
-                    <lable for="Username">Username:</label>
-                    <input type="text" id="Username"placeholder="username13"minlength="6" maxlength="15" required><br>
-                    
-                    <lable for="password">password :</label>
-                    <input type="text" id="password "placeholder="password@13"minlength="6" maxlength="15" required><br>
-
-                    <lable for="email"> email :</label>
-                    <input type="text" id="email "placeholder="Useremail30@gmail.com"><br><minlength="6" maxlength="30"><br>
-
-                    
-                    <lable for="phone"> phone :</label>
-                    <input type="tel" id="phone "placeholder="012-456-7890"pattern="[0-9]{3}-[0-9]{3}[0-9]{4}"><br>
-
-                    <input type="reset"><br>
-                    <input type="submit">
-
-                </form>    
-
-
-                <h2>Account Balance</h2>
-                <p><strong>Balance: </strong> R{{ balance }}</p>
-                <button class="button" onclick="location.href='/update_balance'">Update Balance</button>
-                
-            </div>
-            <div>
-                <h2>Active Trades</h2>
-                <ul>
-                    {% for trade in active_trades %}
-                        <li>{{ trade.currency_pair }} - {{ trade.type }} | Profit: R{{ trade.profit }}</li>
-                    {% endfor %}
-                </ul>
-                <button class="button" onclick="location.href='/new_trade'">New Trade</button>
-            </div>
-        </div>
-        <div class="row">
-            <div>
-                <h2>Market Trends</h2>
-                <ul>
-                    {% for trend in market_trends %}
-                        <li>{{ trend.pair }} - {{ trend.timeframe }} | Payout: {{ trend.payout }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+    {% else %}
+    <div class="alert alert-success">
+        <strong>✅ License Active</strong><br>
+        Type: <strong>{{ license.license_type|upper }}</strong> | 
+        Expires: <strong>{{ license.expires_at.strftime('%Y-%m-%d %H:%M') }}</strong>
     </div>
-</body>
-</html>
+    {% endif %}
+</div>
+
+{% if has_license %}
+<!-- Account Summary -->
+<div class="grid">
+    <div class="stat-card">
+        <h3>{{ account_summary.total_trades }}</h3>
+        <p>Total Trades</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ account_summary.active_trades }}</h3>
+        <p>Active Trades</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ "%.1f"|format(account_summary.win_rate) }}%</h3>
+        <p>Win Rate</p>
+    </div>
+    <div class="stat-card" style="background: {% if account_summary.total_profit >= 0 %}#10b981{% else %}#ef4444{% endif %};">
+        <h3>${{ "%.2f"|format(account_summary.total_profit) }}</h3>
+        <p>Total Profit/Loss</p>
+    </div>
+</div>
+
+<!-- Trading Controls -->
+<div class="card">
+    <h2>Trading Controls</h2>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <a href="{{ url_for('analyze_markets') }}" class="btn btn-success">
+            📊 Analyze Markets
+        </a>
+        <a href="{{ url_for('trading_preferences') }}" class="btn">
+            ⚙️ Trading Settings
+        </a>
+        {% if preferences and preferences.trading_enabled %}
+        <span class="badge badge-success" style="padding: 10px 20px; font-size: 14px;">
+            🟢 Auto-Trading ON
+        </span>
+        {% else %}
+        <span class="badge badge-warning" style="padding: 10px 20px; font-size: 14px;">
+            ⚪ Auto-Trading OFF
+        </span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Active Trades -->
+<div class="card">
+    <h2>Active Trades</h2>
+    {% if account_summary.trades %}
+    <table>
+        <thead>
+            <tr>
+                <th>Pair</th>
+                <th>Type</th>
+                <th>Entry</th>
+                <th>Lot Size</th>
+                <th>P/L</th>
+                <th>Opened</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trade in account_summary.trades %}
+            <tr>
+                <td><strong>{{ trade.currency_pair }}</strong></td>
+                <td>
+                    <span class="badge {% if trade.trade_type == 'BUY' %}badge-success{% else %}badge-danger{% endif %}">
+                        {{ trade.trade_type }}
+                    </span>
+                </td>
+                <td>{{ "%.5f"|format(trade.entry_price) }}</td>
+                <td>{{ trade.lot_size }}</td>
+                <td style="color: {% if trade.profit_loss >= 0 %}#10b981{% else %}#ef4444{% endif %}; font-weight: bold;">
+                    ${{ "%.2f"|format(trade.profit_loss) }}
+                </td>
+                <td>{{ trade.opened_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('close_trade', trade_id=trade.id) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" style="padding: 5px 15px;">Close</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #666; padding: 40px;">No active trades</p>
+    {% endif %}
+</div>
+
+<!-- Manual Trade Entry -->
+<div class="card">
+    <h2>Manual Trade Entry</h2>
+    <form method="POST" action="{{ url_for('manual_trade') }}" style="display: flex; gap: 15px; align-items: end;">
+        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label for="currency_pair">Currency Pair</label>
+            <select id="currency_pair" name="currency_pair" required>
+                {% if preferences and preferences.currency_pairs %}
+                    {% for pair in preferences.currency_pairs %}
+                    <option value="{{ pair }}">{{ pair }}</option>
+                    {% endfor %}
+                {% else %}
+                <option value="EURUSD">EUR/USD</option>
+                <option value="GBPUSD">GBP/USD</option>
+                <option value="USDJPY">USD/JPY</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+            <label for="trade_type">Trade Type</label>
+            <select id="trade_type" name="trade_type" required>
+                <option value="BUY">BUY (Long)</option>
+                <option value="SELL">SELL (Short)</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success" style="height: 44px;">Execute Trade</button>
+    </form>
+</div>
+
+<!-- Recent Signals -->
+<div class="card">
+    <h2>Recent Market Signals</h2>
+    {% if recent_signals %}
+    <table>
+        <thead>
+            <tr>
+                <th>Pair</th>
+                <th>Signal</th>
+                <th>Strength</th>
+                <th>Price</th>
+                <th>Timeframe</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for signal in recent_signals %}
+            <tr>
+                <td><strong>{{ signal.currency_pair }}</strong></td>
+                <td>
+                    <span class="badge {% if signal.signal_type == 'BUY' %}badge-success{% elif signal.signal_type == 'SELL' %}badge-danger{% else %}badge-info{% endif %}">
+                        {{ signal.signal_type }}
+                    </span>
+                </td>
+                <td>{{ "%.0f"|format(signal.strength) }}%</td>
+                <td>{{ "%.5f"|format(signal.price) }}</td>
+                <td>{{ signal.timeframe }}</td>
+                <td>{{ signal.created_at.strftime('%H:%M:%S') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #666; padding: 40px;">
+        No signals yet. Click "Analyze Markets" to generate signals.
+    </p>
+    {% endif %}
+</div>
+
+{% else %}
+<!-- No License View -->
+<div class="card" style="text-align: center;">
+    <h2>Get Started with SpaceTradingFX</h2>
+    <p style="margin: 20px 0; color: #666;">
+        Activate your license key to start trading
+    </p>
+    <a href="{{ url_for('buy_license') }}" class="btn btn-success" style="font-size: 1.2em; padding: 15px 40px;">
+        Activate License
+    </a>
+</div>
+{% endif %}
+{% endblock %}

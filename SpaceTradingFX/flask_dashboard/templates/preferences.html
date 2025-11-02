@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Trading Preferences</h2>
+    <p style="margin-bottom: 30px;">Configure your automated trading settings</p>
+    
+    <form method="POST" action="{{ url_for('trading_preferences') }}">
+        <!-- Currency Pairs -->
+        <div class="form-group">
+            <label>Select Currency Pairs to Trade</label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px;">
+                {% for pair in available_pairs %}
+                <label style="display: flex; align-items: center; padding: 10px; background: #f9fafb; border-radius: 5px; cursor: pointer;">
+                    <input type="checkbox" name="currency_pairs" value="{{ pair }}" 
+                        {% if preferences and pair in preferences.currency_pairs %}checked{% endif %}
+                        style="margin-right: 10px;">
+                    <strong>{{ pair[:3] }}/{{ pair[3:] }}</strong>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Timeframe -->
+        <div class="form-group">
+            <label for="timeframe">Trading Timeframe</label>
+            <select id="timeframe" name="timeframe">
+                <option value="1M" {% if preferences and preferences.timeframe == '1M' %}selected{% endif %}>1 Minute</option>
+                <option value="5M" {% if preferences and preferences.timeframe == '5M' %}selected{% endif %}>5 Minutes</option>
+                <option value="15M" {% if preferences and preferences.timeframe == '15M' %}selected{% endif %}>15 Minutes</option>
+                <option value="1H" {% if preferences and preferences.timeframe == '1H' %}selected{% endif %}>1 Hour</option>
+                <option value="4H" {% if preferences and preferences.timeframe == '4H' %}selected{% endif %}>4 Hours</option>
+                <option value="D" {% if preferences and preferences.timeframe == 'D' %}selected{% endif %}>Daily</option>
+            </select>
+        </div>
+        
+        <!-- Risk Management -->
+        <div class="form-group">
+            <label for="risk_percentage">Risk Per Trade (%)</label>
+            <input type="number" id="risk_percentage" name="risk_percentage" 
+                min="0.1" max="5" step="0.1" 
+                value="{{ preferences.risk_percentage if preferences else 1.0 }}">
+            <small style="color: #666;">Recommended: 1-2% of account balance per trade</small>
+        </div>
+        
+        <!-- Max Concurrent Trades -->
+        <div class="form-group">
+            <label for="max_concurrent_trades">Maximum Concurrent Trades</label>
+            <input type="number" id="max_concurrent_trades" name="max_concurrent_trades" 
+                min="1" max="20" 
+                value="{{ preferences.max_concurrent_trades if preferences else 3 }}">
+        </div>
+        
+        <!-- Enable Auto-Trading -->
+        <div class="form-group">
+            <label style="display: flex; align-items: center; cursor: pointer; background: #f9fafb; padding: 15px; border-radius: 10px;">
+                <input type="checkbox" name="trading_enabled" 
+                    {% if preferences and preferences.trading_enabled %}checked{% endif %}
+                    style="margin-right: 15px; width: 20px; height: 20px;">
+                <div>
+                    <strong style="font-size: 1.1em;">Enable Automated Trading</strong>
+                    <p style="margin-top: 5px; color: #666; font-weight: normal;">
+                        Allow the bot to automatically execute trades based on signals
+                    </p>
+                </div>
+            </label>
+        </div>
+        
+        <!-- MetaTrader Settings (for future) -->
+        <h3 style="margin: 30px 0 15px 0; color: #667eea;">MetaTrader Connection (Optional)</h3>
+        
+        <div class="form-group">
+            <label for="mt5_account">MT5 Account Number</label>
+            <input type="text" id="mt5_account" name="mt5_account" 
+                value="{{ preferences.mt5_account if preferences and preferences.mt5_account else '' }}"
+                placeholder="Your MetaTrader 5 account number">
+        </div>
+        
+        <div class="form-group">
+            <label for="mt5_server">MT5 Server</label>
+            <input type="text" id="mt5_server" name="mt5_server" 
+                value="{{ preferences.mt5_server if preferences and preferences.mt5_server else '' }}"
+                placeholder="e.g., ICMarkets-Demo">
+        </div>
+        
+        <button type="submit" class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.1em;">
+            💾 Save Preferences
+        </button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>⚠️ Important Notes</h3>
+    <ul style="list-style: none; padding-left: 0;">
+        <li style="padding: 10px; border-left: 3px solid #f59e0b; background: #fef3c7; margin-bottom: 10px; border-radius: 5px;">
+            <strong>Risk Warning:</strong> Forex trading carries a high level of risk. Never risk more than you can afford to lose.
+        </li>
+        <li style="padding: 10px; border-left: 3px solid #3b82f6; background: #dbeafe; margin-bottom: 10px; border-radius: 5px;">
+            <strong>Demo First:</strong> Always test your strategy on a demo account before using real money.
+        </li>
+        <li style="padding: 10px; border-left: 3px solid #10b981; background: #d1fae5; border-radius: 5px;">
+            <strong>Monitor Regularly:</strong> Even with automated trading, regularly monitor your trades and adjust settings as needed.
+        </li>
+    </ul>
+</div>
+{% endblock %}

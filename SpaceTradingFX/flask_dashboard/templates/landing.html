@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="margin-top: 100px; max-width: 600px; margin-left: auto; margin-right: auto; text-align: center;">
+    <h1 style="font-size: 3em; margin-bottom: 20px;">🚀 SpaceTradingFX</h1>
+    <p style="font-size: 1.2em; color: #666; margin-bottom: 30px;">
+        Automated Forex Trading Platform
+    </p>
+    <p style="margin-bottom: 30px;">
+        Trade currencies automatically with advanced technical analysis. 
+        Sign in to get started with your license key.
+    </p>
+    
+    <div style="display: flex; gap: 15px; justify-content: center;">
+        <a href="{{ url_for('login') }}" class="btn" style="font-size: 1.2em; padding: 15px 40px;">
+            Sign In / Sign Up
+        </a>
+    </div>
+    
+    <div style="margin-top: 40px; padding: 20px; background: #f9fafb; border-radius: 10px;">
+        <h3 style="margin-bottom: 15px;">Features</h3>
+        <ul style="text-align: left; list-style: none;">
+            <li style="padding: 10px;">✅ Real-time Forex Analysis</li>
+            <li style="padding: 10px;">✅ Automated Trading Signals</li>
+            <li style="padding: 10px;">✅ MetaTrader 5 Integration</li>
+            <li style="padding: 10px;">✅ Advanced Risk Management</li>
+            <li style="padding: 10px;">✅ Multiple Currency Pairs</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

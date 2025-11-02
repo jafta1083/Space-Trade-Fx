@@ -23,13 +23,13 @@ args = "flask-dashboard"
 name = "flask-dashboard"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd SpaceTradingFX/flask_dashboard && python app.py"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd SpaceTradingFX/flask_dashboard && python main.py"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
