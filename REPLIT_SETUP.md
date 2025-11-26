@@ -1,8 +1,23 @@
-# Replit setup note (moved)
+# SpaceTradingFX
 
-This file has been superseded by `REPLIT_SETUP.md` at the repository root.
-If you are looking for Replit-specific configuration or guidance, see
-`REPLIT_SETUP.md`.
+## Overview
+SpaceTradingFX is a Python-based trading bot application with a Flask web dashboard. The application reads trading signals from a file and displays them in a web-based dashboard along with account balance, active trades, and market trends.
+
+## Project Structure
+- `SpaceTradingFX/flask_dashboard/` - Flask web application for the dashboard
+  - `app.py` - Main Flask application
+  - `templates/dashboard.html` - Dashboard HTML template
+- `SpaceTradingFX/space_trading_fx/` - Core trading bot logic
+  - `core/` - Core functionality (signal reader, strategy engine)
+  - `trading/` - Trading execution logic
+  - `config/` - Configuration settings
+  - `utils/` - Utility functions
+- `SpaceTradingFX/data/` - Trading signals data
+- `SpaceTradingFX/logs/` - Application logs
+
+## Setup
+The application is configured to run in the Replit environment with:
+- Python 3.12
 - Flask web server on port 5000
 - Dependencies managed via uv package manager
 
