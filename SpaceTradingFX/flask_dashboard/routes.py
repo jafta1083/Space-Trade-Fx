@@ -197,6 +197,17 @@ def trading_preferences():
         preferences.risk_percentage = float(request.form.get('risk_percentage', 1.0))
         preferences.max_concurrent_trades = int(request.form.get('max_concurrent_trades', 3))
         preferences.trading_enabled = request.form.get('trading_enabled') == 'on'
+        # Direction preferences per pair (BOTH/BUY/SELL)
+        direction_prefs = {}
+        for p in currency_pairs:
+            val = request.form.get(f'direction_{p}', 'BOTH')
+            if val not in ('BOTH', 'BUY', 'SELL'):
+                val = 'BOTH'
+            direction_prefs[p] = val
+        preferences.direction_preferences = direction_prefs
+        # Optional MT5 fields
+        preferences.mt5_account = request.form.get('mt5_account') or preferences.mt5_account
+        preferences.mt5_server = request.form.get('mt5_server') or preferences.mt5_server
         
         db.session.commit()
         flash('Trading preferences updated!', 'success')

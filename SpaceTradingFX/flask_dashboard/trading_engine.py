@@ -36,18 +36,28 @@ class TradingEngine:
         for currency_pair in self.preferences.currency_pairs:
             try:
                 signal_data = self.forex_provider.analyze_signal(currency_pair)
-                
-                # Create signal record
-                signal = TradingSignal(
-                    currency_pair=currency_pair,
-                    signal_type=signal_data['signal'],
-                    strength=signal_data['strength'],
-                    price=self._get_current_price(currency_pair),
-                    indicators=signal_data['indicators'],
-                    timeframe=self.preferences.timeframe
-                )
-                db.session.add(signal)
-                signals.append(signal_data)
+                # Respect user's direction preference for this pair (BOTH/BUY/SELL)
+                allowed = 'BOTH'
+                try:
+                    # direction_preferences is a mapping like {'EURUSD': 'BUY'}
+                    allowed = (self.preferences.direction_preferences or {}).get(currency_pair, 'BOTH')
+                except Exception:
+                    allowed = 'BOTH'
+
+                signal_type = signal_data.get('signal')
+                # Only record/apply signals that match the user's preference
+                if allowed == 'BOTH' or (signal_type and allowed == signal_type):
+                    # Create signal record
+                    signal = TradingSignal(
+                        currency_pair=currency_pair,
+                        signal_type=signal_type,
+                        strength=signal_data.get('strength', 0),
+                        price=self._get_current_price(currency_pair),
+                        indicators=signal_data.get('indicators', {}),
+                        timeframe=self.preferences.timeframe
+                    )
+                    db.session.add(signal)
+                    signals.append(signal_data)
                 
             except Exception as e:
                 logger.error(f"Error analyzing {currency_pair}: {e}")

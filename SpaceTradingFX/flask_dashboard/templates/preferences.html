@@ -21,6 +21,28 @@
             </div>
         </div>
         
+        <!-- Direction preferences per pair -->
+        <div class="form-group">
+            <label>Direction Preferences</label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                {% for pair in available_pairs %}
+                <div style="padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #eee;">
+                    <div style="font-weight: 600; margin-bottom: 6px;">{{ pair }}</div>
+                    <select name="direction_{{ pair }}">
+                        {% set cur_pref = 'BOTH' %}
+                        {% if preferences and preferences.direction_preferences and pair in preferences.direction_preferences %}
+                            {% set cur_pref = preferences.direction_preferences[pair] %}
+                        {% endif %}
+                        <option value="BOTH" {% if cur_pref == 'BOTH' %}selected{% endif %}>Both (Buy & Sell)</option>
+                        <option value="BUY" {% if cur_pref == 'BUY' %}selected{% endif %}>Only Buy</option>
+                        <option value="SELL" {% if cur_pref == 'SELL' %}selected{% endif %}>Only Sell</option>
+                    </select>
+                </div>
+                {% endfor %}
+            </div>
+            <small style="color: #666; display: block; margin-top: 8px;">Choose the allowed trade direction per currency pair. The bot will only open trades matching these preferences.</small>
+        </div>
+        
         <!-- Timeframe -->
         <div class="form-group">
             <label for="timeframe">Trading Timeframe</label>

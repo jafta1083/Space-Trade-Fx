@@ -35,6 +35,11 @@ python SpaceTradingFX/flask_dashboard/main.py
 Default admin password (development)
 - `DEFAULT_ADMIN_PASSWORD` - Optional. If provided, the seeded default admin will use this password for local login. Only use this for development/testing; do NOT set a plaintext password in production.
 
+Trading direction preferences
+- Each user can set per-pair direction preferences via the UI at `GET /preferences`.
+- `direction_preferences` is stored on the `TradingPreference` model as JSON, e.g. `{ "EURUSD": "BUY", "GBPUSD": "BOTH" }`.
+- Values are: `BOTH`, `BUY`, or `SELL`. The bot will only open trades that match the configured direction for a pair.
+
 Admin local login (JSON)
 - POST `/admin/login` with `{"email": "you@example.com", "password": "secret"}` to authenticate as an admin. Successful login will set the Flask session cookie.
 

@@ -81,6 +81,8 @@ class TradingPreference(db.Model):
     mt5_account = db.Column(db.String(100), nullable=True)
     mt5_server = db.Column(db.String(100), nullable=True)
     strategy_settings = db.Column(db.JSON, default=dict)  # Store strategy parameters
+    # Per-currency direction preferences: { 'EURUSD': 'BOTH'|'BUY'|'SELL' }
+    direction_preferences = db.Column(db.JSON, default=dict)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
