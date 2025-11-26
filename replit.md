@@ -1,8 +1,8 @@
-# Replit setup note (moved)
+# Setup note (moved)
 
-This file has been superseded by `REPLIT_SETUP.md` at the repository root.
-If you are looking for Replit-specific configuration or guidance, see
-`REPLIT_SETUP.md`.
+This file has been superseded by `SETUP.md` at the repository root.
+If you are looking for setup-specific configuration or guidance, see
+`SETUP.md`.
 - Flask web server on port 5000
 - Dependencies managed via uv package manager
 
