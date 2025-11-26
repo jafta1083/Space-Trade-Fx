@@ -11,20 +11,13 @@ from flask_dance.consumer import (
     oauth_error,
 )
 from flask_dance.consumer.storage import BaseStorage
-from flask_login import LoginManager, login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from sqlalchemy.exc import NoResultFound
 from werkzeug.local import LocalProxy
 
-from app import app, db
+from app import app, db, login_manager
 from models import OAuth, User
-
-login_manager = LoginManager(app)
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(user_id)
 
 
 class UserSessionStorage(BaseStorage):
@@ -63,35 +56,25 @@ class UserSessionStorage(BaseStorage):
 
 
 def make_auth_blueprint():
-    try:
-        repl_id = os.environ.get('REPL_ID', 'dev-repl-id')
-    except KeyError:
-        raise SystemExit("the REPL_ID environment variable must be set")
-
-    issuer_url = os.environ.get('ISSUER_URL', "https://replit.com/oidc")
+    # Use generic env vars for OIDC configuration (override in production)
+    client_id = os.environ.get('AUTH_CLIENT_ID', os.environ.get('OIDC_CLIENT_ID', 'dev-client-id'))
+    issuer_url = os.environ.get('ISSUER_URL', os.environ.get('OIDC_ISSUER_URL', 'http://localhost:8000/oidc'))
 
     auth_bp = OAuth2ConsumerBlueprint(
         "auth",
         __name__,
-        client_id=repl_id,
+        client_id=client_id,
         client_secret=None,
         base_url=issuer_url,
-        authorization_url_params={
-            "prompt": "login consent",
-        },
+        authorization_url_params={"prompt": "login consent"},
         token_url=issuer_url + "/token",
-        token_url_params={
-            "auth": (),
-            "include_client_id": True,
-        },
+        token_url_params={"auth": (), "include_client_id": True},
         auto_refresh_url=issuer_url + "/token",
-        auto_refresh_kwargs={
-            "client_id": repl_id,
-        },
+        auto_refresh_kwargs={"client_id": client_id},
         authorization_url=issuer_url + "/auth",
         use_pkce=True,
         code_challenge_method="S256",
-        scope=["openid", "profile", "email", "offline_access"],
+        scope=["openid", "profile", "email", "online_access"],
         storage=UserSessionStorage(),
     )
 
@@ -108,14 +91,17 @@ def make_auth_blueprint():
         del auth_bp.token
         logout_user()
 
-        end_session_endpoint = issuer_url + "/session/end"
-        encoded_params = urlencode({
-            "client_id": repl_id,
-            "post_logout_redirect_uri": request.url_root,
-        })
-        logout_url = f"{end_session_endpoint}?{encoded_params}"
+        # Redirect to provider end-session endpoint if configured, otherwise go home
+        if issuer_url:
+            end_session_endpoint = issuer_url.rstrip('/') + "/session/end"
+            encoded_params = urlencode({
+                "client_id": client_id,
+                "post_logout_redirect_uri": request.url_root,
+            })
+            logout_url = f"{end_session_endpoint}?{encoded_params}"
+            return redirect(logout_url)
 
-        return redirect(logout_url)
+        return redirect(url_for('index'))
 
     @auth_bp.route("/error")
     def error():
@@ -162,10 +148,10 @@ def require_login(f):
 
         expires_in = auth.token.get('expires_in', 0) if hasattr(g, 'flask_dance_session') and auth.authorized else 0
         if expires_in < 0:
-            refresh_token_url = os.environ.get('ISSUER_URL', "https://replit.com/oidc") + "/token"
+            refresh_token_url = os.environ.get('ISSUER_URL', os.environ.get('OIDC_ISSUER_URL', 'http://localhost:8000/oidc')) + "/token"
             try:
                 token = auth.refresh_token(token_url=refresh_token_url,
-                                             client_id=os.environ.get('REPL_ID', 'dev-repl-id'))
+                                             client_id=os.environ.get('AUTH_CLIENT_ID', os.environ.get('OIDC_CLIENT_ID', 'dev-client-id')))
             except InvalidGrantError:
                 session["next_url"] = get_next_navigation_url(request)
                 return redirect(url_for('auth.login'))

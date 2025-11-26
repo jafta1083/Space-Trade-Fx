@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin — Licenses</title>
+  </head>
+  <body>
+    <h1>Admin — Licenses</h1>
+    <div id="status"></div>
+    <form id="login-form">
+      <h2>Login</h2>
+      <label>Email: <input name="email" type="email" required></label><br>
+      <label>Password: <input name="password" type="password" required></label><br>
+      <button type="submit">Login</button>
+    </form>
+
+    <div id="admin-area" style="display:none">
+      <h2>Create License</h2>
+      <form id="create-license-form">
+        <label>User ID: <input name="user_id" required></label><br>
+        <label>Type: <input name="license_type" value="basic"></label><br>
+        <label>Max Active Trades: <input name="max_active_trades" value="3" type="number"></label><br>
+        <button type="submit">Create</button>
+      </form>
+
+      <h2>Existing Licenses</h2>
+      <button id="refresh">Refresh</button>
+      <ul id="licenses"></ul>
+    </div>
+
+    <script>
+      async function postJson(url, data) {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          credentials: 'include'
+        });
+        return res.json();
+      }
+
+      document.getElementById('login-form').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const form = ev.target;
+        const data = { email: form.email.value, password: form.password.value };
+        const r = await postJson('/admin/login', data);
+        document.getElementById('status').textContent = JSON.stringify(r);
+        if (r.status === 'ok') {
+          document.getElementById('admin-area').style.display = 'block';
+          form.style.display = 'none';
+          loadLicenses();
+        }
+      });
+
+      document.getElementById('create-license-form').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const form = ev.target;
+        const data = { user_id: form.user_id.value, license_type: form.license_type.value, max_active_trades: parseInt(form.max_active_trades.value) };
+        const r = await postJson('/admin/licenses/create', data);
+        document.getElementById('status').textContent = JSON.stringify(r);
+        loadLicenses();
+      });
+
+      document.getElementById('refresh').addEventListener('click', loadLicenses);
+
+      async function loadLicenses() {
+        const res = await fetch('/admin/licenses', { credentials: 'include' });
+        const list = await res.json();
+        const ul = document.getElementById('licenses');
+        ul.innerHTML = '';
+        for (const l of list) {
+          const li = document.createElement('li');
+          li.textContent = `${l.id} — ${l.user_id} — ${l.license_type} — ${l.status}`;
+          ul.appendChild(li);
+        }
+      }
+    </script>
+  </body>
+  </html>

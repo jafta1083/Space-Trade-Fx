@@ -31,3 +31,13 @@ touch .gitignore
 touch logs/bot.log
 
 echo "✅ SpaceTradingFX folder structure created successfully!"
+
+# Install dependencies
+python3 -m venv venv
+. venv/bin/activate
+pip install --upgrade pip
+pip install flask flask_sqlalchemy flask_login flask-dance sqlalchemy oauthlib requests loguru rsa
+
+# Run Flask dashboard
+. venv/bin/activate
+python3 SpaceTradingFX/flask_dashboard/main.py

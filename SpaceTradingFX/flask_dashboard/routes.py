@@ -1,4 +1,19 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
+try:
+    from . import admin, payments  # ensure admin and payments blueprints are registered
+except Exception:
+    # Support running the app from different working directories / contexts
+    try:
+        import SpaceTradingFX.flask_dashboard.admin as admin
+        import SpaceTradingFX.flask_dashboard.payments as payments
+    except Exception:
+        try:
+            import admin
+            import payments
+        except Exception:
+            # If none import, continue — routes may still function without admin/payments
+            admin = None
+            payments = None
 from flask_login import current_user, login_required, login_user, logout_user
 from app import app, db
 from models import User, License, TradingPreference, Trade, TradingSignal

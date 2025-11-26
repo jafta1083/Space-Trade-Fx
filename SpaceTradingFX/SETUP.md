@@ -1,0 +1,47 @@
+Setup and environment variables
+===============================
+
+This project uses a few environment variables to configure authentication and a default local admin user used for development and testing.
+
+Default admin (development)
+- `DEFAULT_ADMIN_EMAIL` - Email for the default admin user created at app startup. Default: `molotojafta30@gmail.com`.
+- `DEFAULT_ADMIN_FIRST` - First name for the admin. Default: `Jafta`.
+- `DEFAULT_ADMIN_LAST` - Last name for the admin. Default: `Moloto`.
+- `DEFAULT_ADMIN_ID` - The DB `id` for the default admin. Default: `jafta-moloto`.
+
+Authentication / OIDC
+- `AUTH_CLIENT_ID` or `OIDC_CLIENT_ID` - The OAuth/OIDC client id to use for the provider. No default for production; a `dev-client-id` is used when not provided.
+- `ISSUER_URL` or `OIDC_ISSUER_URL` - The OIDC issuer base URL (e.g. `https://auth.example.com/oidc`). Default for local development: `http://localhost:8000/oidc`.
+
+Notes
+- For production, set the real `AUTH_CLIENT_ID` and `ISSUER_URL` and do not rely on the development defaults.
+- You can override the default admin by setting `DEFAULT_ADMIN_EMAIL` (and related vars) before starting the app.
+
+Example (bash)
+```bash
+export DEFAULT_ADMIN_EMAIL="molotojafta30@gmail.com"
+export DEFAULT_ADMIN_FIRST="Jafta"
+export DEFAULT_ADMIN_LAST="Moloto"
+export DEFAULT_ADMIN_ID="jafta-moloto"
+
+# OIDC provider settings (production)
+export AUTH_CLIENT_ID="your-client-id"
+export ISSUER_URL="https://auth.example.com/oidc"
+
+# Start the app (example)
+python SpaceTradingFX/flask_dashboard/main.py
+```
+
+Default admin password (development)
+- `DEFAULT_ADMIN_PASSWORD` - Optional. If provided, the seeded default admin will use this password for local login. Only use this for development/testing; do NOT set a plaintext password in production.
+
+Admin local login (JSON)
+- POST `/admin/login` with `{"email": "you@example.com", "password": "secret"}` to authenticate as an admin. Successful login will set the Flask session cookie.
+
+License management (admin)
+- GET `/admin/licenses` - list licenses
+- POST `/admin/licenses/create` - create a license (JSON: `user_id`, optional `license_type`, `max_active_trades`)
+- POST `/admin/licenses/<id>/status` - change status (JSON: `status`)
+
+
+If you need help configuring a real OIDC provider, tell me which provider you want to use and I can add step-by-step setup notes.

@@ -3,6 +3,7 @@ from app import db
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 # User model (mandatory for Replit Auth)
@@ -13,6 +14,9 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String, nullable=True)
     last_name = db.Column(db.String, nullable=True)
     profile_image_url = db.Column(db.String, nullable=True)
+    password_hash = db.Column(db.String, nullable=True)
+    is_admin = db.Column(db.Boolean, default=False)
+    has_unlimited_premium = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     
@@ -20,6 +24,17 @@ class User(UserMixin, db.Model):
     licenses = db.relationship('License', backref='user', lazy=True)
     trading_preferences = db.relationship('TradingPreference', backref='user', lazy=True)
     trades = db.relationship('Trade', backref='user', lazy=True)
+
+    def set_password(self, password: str):
+        if password is None:
+            self.password_hash = None
+            return
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password: str) -> bool:
+        if not self.password_hash:
+            return False
+        return check_password_hash(self.password_hash, password)
 
 
 # OAuth model (mandatory for Replit Auth)

@@ -1,4 +1,25 @@
-import PySimpleGUI as sg
+try:
+    import PySimpleGUI as sg
+except Exception:
+    # Provide a minimal stub so the package can be imported in headless/test environments
+    class _DummyWindow:
+        def __init__(self, *a, **k):
+            pass
+
+        def Read(self):
+            return (None, {})
+
+        def close(self):
+            pass
+
+    class _SG:
+        Text = staticmethod(lambda *a, **k: None)
+        Button = staticmethod(lambda *a, **k: None)
+        Combo = staticmethod(lambda *a, **k: None)
+        Window = _DummyWindow
+
+    sg = _SG()
+
 
 def Dispaly_candelstick(window,API,candlestick):
     
@@ -126,4 +147,4 @@ def main(API):
 # Run the Application
 if __name__ == "__main__":
     api_instance = MockAPI()
-    main(api_instance)      
+    main(api_instance)
