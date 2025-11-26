@@ -165,3 +165,55 @@ def test_example():
 ## License
 
 See LICENSE file for details.
+
+## Continuous Integration
+
+This project uses GitHub Actions for automated testing and linting:
+
+- **Tests** (`.github/workflows/test.yml`): Runs pytest on every push and PR
+- **Lint** (`.github/workflows/lint.yml`): Runs flake8, pylint, black, and isort checks
+
+### Local Development Setup
+
+#### 1. Install Pre-commit Hooks
+
+To automatically run linting and formatting on commit:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Now code will be automatically formatted and checked before each commit.
+
+#### 2. Run Tests Locally
+
+```bash
+pytest SpaceTradingFX/tests/ -v
+```
+
+#### 3. Run Linting Checks
+
+```bash
+# Check with flake8
+flake8 SpaceTradingFX/space_trading_fx SpaceTradingFX/flask_dashboard
+
+# Check with pylint
+pylint SpaceTradingFX/space_trading_fx SpaceTradingFX/flask_dashboard
+
+# Format code with black
+black SpaceTradingFX/space_trading_fx SpaceTradingFX/flask_dashboard --line-length=120
+
+# Sort imports with isort
+isort SpaceTradingFX/space_trading_fx SpaceTradingFX/flask_dashboard
+```
+
+#### 4. Code Style Guidelines
+
+- **Line length**: 120 characters (configured in `.pylintrc`, `setup.cfg`, `black`)
+- **Formatter**: black (automatic via pre-commit)
+- **Import sorter**: isort (automatic via pre-commit)
+- **Linters**: flake8 and pylint
+- **Python version**: 3.12+
+
+All pull requests must pass the CI checks before merging.
